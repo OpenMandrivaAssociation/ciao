@@ -11,6 +11,7 @@ License:	GPLv2+
 Group:		Development/Other
 Patch0:		ciao-makefile-destdir.patch
 Patch1:		ciao-dotprofile.patch
+BuildRequires:	emacs
 BuildRoot:	%{_tmppath}/%{name}-%{version}-root
 %description
 Ciao is next generation multi-paradigm programming environment with a
