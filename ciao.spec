@@ -3,7 +3,7 @@
 
 Name:		ciao
 Version:	1.10p8
-Release:	%mkrel 1
+Release:	%mkrel 2
 Source:		http://www.clip.dia.fi.upm.es/~clip/Software/Ciao/ciao-%{version}.tar.gz
 URL:		http://www.ciaohome.org/
 Summary:	Prolog development environment
@@ -83,6 +83,12 @@ make CIAOROOT=%_prefix LIBDIR=%{_libdir} SRC=`pwd` DOCROOT=%{_defaultdocdir}/%{n
 rm -Rf %{buildroot}
 make DESTDIR=%{buildroot} CIAOROOT=%{_prefix} LIBDIR=%{_libdir} SRC=`pwd` \
      DOCROOT=%{_defaultdocdir}/%{name}-%{version} EXECMODE=755 DATAMODE=644 install
+
+pushd ciaoc
+make DESTDIR=%{buildroot} CIAOROOT=%{_prefix} LIBDIR=%{_libdir} SRC=`pwd`/.. \
+     DOCROOT=%{_defaultdocdir}/%{name}-%{version} EXECMODE=755 DATAMODE=644 install
+popd
+
 %{__mkdir_p} %{buildroot}%{_mandir}/man1 %{buildroot}%{_infodir}
 
 mv %{buildroot}%{_defaultdocdir}/%{name}-%{version}/ciao.info %{buildroot}%{_infodir}
