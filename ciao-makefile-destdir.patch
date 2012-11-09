@@ -1,0 +1,1077 @@
+diff -ru ciao-1.10p8/ciaoc/Makefile ciao-1.10p8.n/ciaoc/Makefile
+--- ciao-1.10p8/ciaoc/Makefile	2007-01-17 16:00:12.000000000 +0100
++++ ciao-1.10p8.n/ciaoc/Makefile	2009-02-23 15:23:21.000000000 +0100
+@@ -22,15 +22,15 @@
+ 
+ install:
+ 	-mkdir -p $(BINDIR)
+-	-cp $(CIAOCNAME) $(BINDIR)/$(CIAOCNAME)-$(VERSION)
+-	-chmod $(EXECMODE) $(BINDIR)/$(CIAOCNAME)-$(VERSION)
+-	-rm -f $(BINDIR)/$(CIAOCNAME) 
+-	-ln -s $(CIAOCNAME)-$(VERSION) $(BINDIR)/$(CIAOCNAME) 
++	-cp $(CIAOCNAME) $(DESTDIR)$(BINDIR)/$(CIAOCNAME)-$(VERSION)
++	-chmod $(EXECMODE) $(DESTDIR)$(BINDIR)/$(CIAOCNAME)-$(VERSION)
++	-rm -f $(DESTDIR)$(BINDIR)/$(CIAOCNAME) 
++	-ln -s $(CIAOCNAME)-$(VERSION) $(DESTDIR)$(BINDIR)/$(CIAOCNAME) 
+ 
+ uninstall:
+-	@/bin/rm -f $(BINDIR)/$(CIAOCNAME)-$(VERSION) 
+-	@if [ ! -f $(BINDIR)/$(CIAOCNAME) ] ; then \
+-		/bin/rm -f $(BINDIR)/$(CIAOCNAME) ; \
++	@/bin/rm -f $(DESTDIR)$(BINDIR)/$(CIAOCNAME)-$(VERSION) 
++	@if [ ! -f $(DESTDIR)$(BINDIR)/$(CIAOCNAME) ] ; then \
++		/bin/rm -f $(DESTDIR)$(BINDIR)/$(CIAOCNAME) ; \
+ 	fi
+ 
+ distclean: cleantmpfiles cleanexecs
+diff -ru ciao-1.10p8/contrib/Makefile ciao-1.10p8.n/contrib/Makefile
+--- ciao-1.10p8/contrib/Makefile	2004-12-07 01:31:42.000000000 +0100
++++ ciao-1.10p8.n/contrib/Makefile	2009-02-23 15:24:20.000000000 +0100
+@@ -26,19 +26,19 @@
+ 	@echo "*** Installing $(BASEMAIN) contributed libraries..."
+ 	@echo "*** (in $(STDLIBDIR))"
+ 	@echo "*** ---------------------------------------------------------"
+-	mkdir -p $(STDLIBDIR)
+-	-chmod $(EXECMODE) $(STDLIBDIR)
+-	-cp -pr $(ALLFILES) $(STDLIBDIR)
+-	-(cd $(STDLIBDIR) && find . -type d -exec chmod $(EXECMODE) {} \; )
+-	-(cd $(STDLIBDIR) && find . ! -type d -exec chmod $(DATAMODE) {} \; )
+-	-(cd $(STDLIBDIR) && find . -name '*~' -exec 'rm' -f {} \; )
++	mkdir -p $(DESTDIR)$(STDLIBDIR)
++	-chmod $(EXECMODE) $(DESTDIR)$(STDLIBDIR)
++	-cp -pr $(ALLFILES) $(DESTDIR)$(STDLIBDIR)
++	-(cd $(DESTDIR)$(STDLIBDIR) && find . -type d -exec chmod $(EXECMODE) {} \; )
++	-(cd $(DESTDIR)$(STDLIBDIR) && find . ! -type d -exec chmod $(DATAMODE) {} \; )
++	-(cd $(DESTDIR)$(STDLIBDIR) && find . -name '*~' -exec 'rm' -f {} \; )
+ 
+ uninstall:
+ 	@echo "*** ---------------------------------------------------------"
+ 	@echo "*** Uninstalling $(BASEMAIN) 'library' libraries..."
+-	@echo "*** (deleting $(STDLIBDIR))"
++	@echo "*** (deleting $(DESTDIR)$(STDLIBDIR))"
+ 	@echo "*** ---------------------------------------------------------"
+-	-rm -rf $(STDLIBDIR)
++	-rm -rf $(DESTDIR)$(STDLIBDIR)
+ 
+ # *.itf *.po *.asr are eliminated recursively so that no Makefiles 
+ # underneath  are needed for cleaning up prolog-only libraries. MH.
+diff -ru ciao-1.10p8/doc/Makefile ciao-1.10p8.n/doc/Makefile
+--- ciao-1.10p8/doc/Makefile	2004-12-07 04:13:08.000000000 +0100
++++ ciao-1.10p8.n/doc/Makefile	2009-02-23 15:22:42.000000000 +0100
+@@ -23,12 +23,12 @@
+ 	@echo "*** ---------------------------------------------------------"
+ 	@echo "*** Installing $(MAIN) documentation libraries..."
+ 	@echo "*** ---------------------------------------------------------"
+-	mkdir -p $(REALLIBDIR)/doc
+-	-chmod $(EXECMODE) $(REALLIBDIR)/doc
+-	mkdir -p $(REALLIBDIR)/doc/common
+-	-chmod $(EXECMODE) $(REALLIBDIR)/doc/common
+-	-cp common/* $(REALLIBDIR)/doc/common
+-	-chmod $(DATAMODE) $(REALLIBDIR)/doc/common/*
++	mkdir -p $(DESTDIR)$(REALLIBDIR)/doc
++	-chmod $(EXECMODE) $(DESTDIR)$(REALLIBDIR)/doc
++	mkdir -p $(DESTDIR)$(REALLIBDIR)/doc/common
++	-chmod $(EXECMODE) $(DESTDIR)$(REALLIBDIR)/doc/common
++	-cp common/* $(DESTDIR)$(REALLIBDIR)/doc/common
++	-chmod $(DATAMODE) $(DESTDIR)$(REALLIBDIR)/doc/common/*
+ 	@echo "*** ---------------------------------------------------------"
+ 	@echo "*** Done."
+ 	@echo "*** ---------------------------------------------------------"
+diff -ru ciao-1.10p8/emacs-mode/ciao.el ciao-1.10p8.n/emacs-mode/ciao.el
+--- ciao-1.10p8/emacs-mode/ciao.el	2006-09-29 09:48:14.000000000 +0200
++++ ciao-1.10p8.n/emacs-mode/ciao.el	2009-02-20 15:12:38.000000000 +0100
+@@ -37,7 +37,7 @@
+ ;;;; -------------------------------
+ ;;;; (can normally be used with other Prolog modes and the default prolog.el)
+ ;;;; 
+-;;(setq load-path (cons "/home/clip/lib/ciao" load-path))
++;;(setq load-path (cons "/tmp/buildroot/usr/lib/ciao" load-path))
+ ;;(autoload 'run-ciao-toplevel "ciao"
+ ;;          "Start a Ciao/Prolog top-level sub-process." t)
+ ;;(autoload 'ciao-startup "ciao"
+@@ -66,7 +66,7 @@
+ ;;;; in the Ciao library directory 'DOTcshrc' and 'DOTprofile' files with
+ ;;;; the right paths which can be included directly in your startup scripts):
+ ;;;; 
+-;;;; setenv INFOPATH /usr/local/info:/usr/info:/home/clip/public_html/Local/lpdoc_docs/Ciao
++;;;; setenv INFOPATH /usr/local/info:/usr/info:/tmp/buildroot/www
+ ;;;; ------------------------------------------------------------------------
+ ;;% -----------------------------------------------------------
+ ;;% Other comments, acknowledgments and changelog/version info 
+@@ -932,10 +932,10 @@
+ 
+ ;; These are rewritten during installation:
+ 
+-(defvar ciao-real-lib-dir "/home/clip/lib/ciao/ciao-1.10"
++(defvar ciao-real-lib-dir "/tmp/buildroot/usr/lib/ciao/ciao-1.10"
+   "Where the actual Ciao lib directory is (and, thus, e.g., the image files).")
+ 
+-(defvar ciao-info-dir "/home/clip/public_html/Local/lpdoc_docs/Ciao"
++(defvar ciao-info-dir "/tmp/buildroot/www"
+   "Where the actual Ciao (LPdoc) info directory is.")
+ 
+ ;; In emacs this is done most reliably by setting  INFOPATH (done in
+@@ -1234,7 +1234,7 @@
+ ;;---------------------------------------------------------------------------
+ 
+ ;; Do not change the two lines below (Patched by installation!):
+-(defconst ciao-mode-version "1.10p7" 
++(defconst ciao-mode-version "1.10p8" 
+   "This is the version number of the ciao.el file")
+ 
+ (defconst ciao-mode-emacs-version 
+diff -ru ciao-1.10p8/emacs-mode/DOTemacs.el ciao-1.10p8.n/emacs-mode/DOTemacs.el
+--- ciao-1.10p8/emacs-mode/DOTemacs.el	2004-12-07 01:31:42.000000000 +0100
++++ ciao-1.10p8.n/emacs-mode/DOTemacs.el	2009-02-20 15:12:38.000000000 +0100
+@@ -2,7 +2,7 @@
+ ;; -------------------------------
+ ;; (can normally be used with other Prolog modes and the default prolog.el)
+ ;; 
+-(setq load-path (cons "/home/clip/lib/ciao" load-path))
++(setq load-path (cons "/tmp/buildroot/usr/lib/ciao" load-path))
+ (autoload 'run-ciao-toplevel "ciao"
+           "Start a Ciao/Prolog top-level sub-process." t)
+ (autoload 'ciao-startup "ciao"
+@@ -31,5 +31,5 @@
+ ;; in the Ciao library directory 'DOTcshrc' and 'DOTprofile' files with
+ ;; the right paths which can be included directly in your startup scripts):
+ ;; 
+-;; setenv INFOPATH /usr/local/info:/usr/info:/home/clip/public_html/Local/lpdoc_docs/Ciao
++;; setenv INFOPATH /usr/local/info:/usr/info:/tmp/buildroot/www
+ ;; ------------------------------------------------------------------------
+diff -ru ciao-1.10p8/emacs-mode/Makefile ciao-1.10p8.n/emacs-mode/Makefile
+--- ciao-1.10p8/emacs-mode/Makefile	2004-12-07 01:31:42.000000000 +0100
++++ ciao-1.10p8.n/emacs-mode/Makefile	2009-02-23 15:33:31.000000000 +0100
+@@ -93,36 +93,36 @@
+ 	@echo "*** Installing emacs library files in $(REALLIBDIR)..."
+ 	@echo "*** ---------------------------------------------------------"
+ # Make directories
+-	-mkdir -p $(REALLIBDIR) $(ICONDIR)
+-	-chmod $(EXECMODE) $(REALLIBDIR) $(ICONDIR)
+-	-chgrp $(INSTALLGROUP) $(REALLIBDIR) $(ICONDIR)
++	-mkdir -p $(DESTDIR)$(REALLIBDIR) $(DESTDIR)$(ICONDIR)
++	-chmod $(EXECMODE) $(DESTDIR)$(REALLIBDIR) $(DESTDIR)$(ICONDIR)
++	-chgrp $(INSTALLGROUP) $(DESTDIR)$(REALLIBDIR) $(DESTDIR)$(ICONDIR)
+ # Copy icons
+-	-cd $(ICONDIR) && 'rm' -f $(ICONS)
+-	cd icons && cp $(ICONS) $(ICONDIR)
+-	-cd $(ICONDIR) && chmod $(DATAMODE) $(ICONS) && \
++	-cd $(DESTDIR)$(ICONDIR) && 'rm' -f $(ICONS)
++	cd icons && cp $(ICONS) $(DESTDIR)/$(ICONDIR)
++	-cd $(DESTDIR)$(ICONDIR) && chmod $(DATAMODE) $(ICONS) && \
+             chgrp $(INSTALLGROUP) $(ICONS) && 'rm' -f *~
+ # Copy DOTemacs.el, set mode and owner
+-	-cp DOTemacs.el $(REALLIBDIR)/DOTemacs.el
+-	-chmod $(DATAMODE) $(REALLIBDIR)/DOTemacs.el
+-	-chgrp $(INSTALLGROUP) $(REALLIBDIR)/DOTemacs.el
++	-cp DOTemacs.el $(DESTDIR)$(REALLIBDIR)/DOTemacs.el
++	-chmod $(DATAMODE) $(DESTDIR)$(REALLIBDIR)/DOTemacs.el
++	-chgrp $(INSTALLGROUP) $(DESTDIR)$(REALLIBDIR)/DOTemacs.el
+ # Copy ciao.el, set mode and owner
+-	-cp ciao.el $(REALLIBDIR)/ciao.el
+-	-chmod $(DATAMODE) $(REALLIBDIR)/ciao.el
+-	-chgrp $(INSTALLGROUP) $(REALLIBDIR)/ciao.el
++	-cp ciao.el $(DESTDIR)$(REALLIBDIR)/ciao.el
++	-chmod $(DATAMODE) $(DESTDIR)$(REALLIBDIR)/ciao.el
++	-chgrp $(INSTALLGROUP) $(DESTDIR)$(REALLIBDIR)/ciao.el
+ # Copy ciao.elc, set mode and owner
+-	-cp ciao.elc $(REALLIBDIR)/ciao.elc
+-	-chmod $(DATAMODE) $(REALLIBDIR)/ciao.elc
+-	-chgrp $(INSTALLGROUP) $(REALLIBDIR)/ciao.elc
++	-cp ciao.elc $(DESTDIR)$(REALLIBDIR)/ciao.elc
++	-chmod $(DATAMODE) $(DESTDIR)$(REALLIBDIR)/ciao.elc
++	-chgrp $(INSTALLGROUP) $(DESTDIR)$(REALLIBDIR)/ciao.elc
+ # Copy word-help.el, set mode and owner
+-	-cp word-help.el $(REALLIBDIR)/word-help.el
+-	-chmod $(DATAMODE) $(REALLIBDIR)/word-help.el
+-	-chgrp $(INSTALLGROUP) $(REALLIBDIR)/word-help.el
++	-cp word-help.el $(DESTDIR)$(REALLIBDIR)/word-help.el
++	-chmod $(DATAMODE) $(DESTDIR)$(REALLIBDIR)/word-help.el
++	-chgrp $(INSTALLGROUP) $(DESTDIR)$(REALLIBDIR)/word-help.el
+ # Copy word-help.elc, set mode and owner
+-	-cp word-help.elc $(REALLIBDIR)/word-help.elc
+-	-chmod $(DATAMODE) $(REALLIBDIR)/word-help.elc 
+-	-chgrp $(INSTALLGROUP) $(REALLIBDIR)/word-help.elc 
++	-cp word-help.elc $(DESTDIR)$(REALLIBDIR)/word-help.elc
++	-chmod $(DATAMODE) $(DESTDIR)$(REALLIBDIR)/word-help.elc 
++	-chgrp $(INSTALLGROUP) $(DESTDIR)$(REALLIBDIR)/word-help.elc 
+ # Set up links for all of the above
+-	-cd $(LIBDIR) && \
++	-cd $(DESTDIR)$(LIBDIR) && \
+ 	'rm' -f ciao.el       && ln -s $(REALLIBDIR)/ciao.el             && \
+ 	'rm' -f ciao.elc      && ln -s $(REALLIBDIR)/ciao.elc            && \
+ 	'rm' -f word-help.el  && ln -s $(REALLIBDIR)/word-help.el        && \
+diff -ru ciao-1.10p8/engine/Makefile ciao-1.10p8.n/engine/Makefile
+--- ciao-1.10p8/engine/Makefile	2004-12-07 01:31:42.000000000 +0100
++++ ciao-1.10p8.n/engine/Makefile	2009-02-23 15:19:49.000000000 +0100
+@@ -45,19 +45,19 @@
+ #endif
+ 
+ install: # $(ENGINENAME)
+-	-mkdir -p $(ENGINEDIR)
+-	-chmod $(EXECMODE) $(ENGINEDIR)
+-	-rm -f $(INSTALLEDENGINE).$(CIAOARCH)
+-	-rm -f $(INSTALLEDENGINE).$(CIAOARCH).sta
+-	-rm -f $(INSTALLEDENGINE).sta
+-	-rm -f $(INSTALLEDENGINE)
+-	-cp $(ENGINENAME) $(INSTALLEDENGINE).$(CIAOARCH)
+-	-cp $(ENGINENAME).sta $(INSTALLEDENGINE).$(CIAOARCH).sta
++	-mkdir -p $(DESTDIR)/$(ENGINEDIR)
++	-chmod $(EXECMODE) $(DESTDIR)/$(ENGINEDIR)
++	-rm -f $(DESTDIR)$(INSTALLEDENGINE).$(CIAOARCH)
++	-rm -f $(DESTDIR)$(INSTALLEDENGINE).$(CIAOARCH).sta
++	-rm -f $(DESTDIR)$(INSTALLEDENGINE).sta
++	-rm -f $(DESTDIR)$(INSTALLEDENGINE)
++	-cp $(ENGINENAME) $(DESTDIR)$(INSTALLEDENGINE).$(CIAOARCH)
++	-cp $(ENGINENAME).sta $(DESTDIR)$(INSTALLEDENGINE).$(CIAOARCH).sta
+ # MH fixed these permissions
+-	-chmod $(EXECMODE) $(INSTALLEDENGINE).$(CIAOARCH)
+-	-chmod $(EXECMODE) $(INSTALLEDENGINE).$(CIAOARCH).sta
+-	-ln -s $(INSTALLEDENGINE).$(CIAOARCH) $(INSTALLEDENGINE)
+-	-ln -s $(INSTALLEDENGINE).$(CIAOARCH).sta $(INSTALLEDENGINE).sta
++	-chmod $(EXECMODE) $(DESTDIR)$(INSTALLEDENGINE).$(CIAOARCH)
++	-chmod $(EXECMODE) $(DESTDIR)$(INSTALLEDENGINE).$(CIAOARCH).sta
++	-ln -s $(INSTALLEDENGINE).$(CIAOARCH) $(DESTDIR)$(INSTALLEDENGINE)
++	-ln -s $(INSTALLEDENGINE).$(CIAOARCH).sta $(DESTDIR)$(INSTALLEDENGINE).sta
+ ifeq ($(OSNAME),Win32)
+ 	-rm -f $(INSTALLEDENGINE)_nc.$(CIAOARCH)
+ 	-rm -f $(INSTALLEDENGINE)_nc.$(CIAOARCH).sta
+@@ -74,10 +74,10 @@
+ #	-chmod $(DATAMODE) $(INSTALLEDINCLUDEDIR)/*
+ 
+ uninstall:
+-	-rm -f $(INSTALLEDENGINE)
+-	-rm -f $(INSTALLEDENGINE).$(CIAOARCH)
+-	-rm -f $(INSTALLEDENGINE).sta
+-	-rm -f $(INSTALLEDENGINE).$(CIAOARCH).sta
++	-rm -f $(DESTDIR)$(INSTALLEDENGINE)
++	-rm -f $(DESTDIR)$(INSTALLEDENGINE).$(CIAOARCH)
++	-rm -f $(DESTDIR)$(INSTALLEDENGINE).sta
++	-rm -f $(DESTDIR)$(INSTALLEDENGINE).$(CIAOARCH).sta
+ 
+ 
+ ## We produce three files: 
+diff -ru ciao-1.10p8/examples/Makefile ciao-1.10p8.n/examples/Makefile
+--- ciao-1.10p8/examples/Makefile	2004-12-07 01:31:42.000000000 +0100
++++ ciao-1.10p8.n/examples/Makefile	2009-02-23 15:36:10.000000000 +0100
+@@ -14,23 +14,23 @@
+ install:
+ 	@echo "*** ---------------------------------------------------------"
+ 	@echo "*** Installing $(BASEMAIN) examples..."
+-	@echo "*** (in $(EXAMPLESDIR))"
++	@echo "*** (in $(DESTDIR)$(EXAMPLESDIR))"
+ 	@echo "*** ---------------------------------------------------------"
+-	mkdir -p $(EXAMPLESDIR)
+-	-chmod $(EXECMODE) $(EXAMPLESDIR)
+-	-cp -pR $(ALLFILES) $(EXAMPLESDIR)
+-	-@(cd $(EXAMPLESDIR) && find . -type d -exec chmod $(EXECMODE) {} \; )
+-	-@(cd $(EXAMPLESDIR) && find . ! -type d -exec chmod $(DATAMODE) {} \; )
+-	-@(cd $(EXAMPLESDIR) && find . -name '*~' -exec 'rm' -f {} \; )
+-	-@(cd $(EXAMPLESDIR) && find . -name '*.po' -exec 'rm' -f {} \; )
+-	-@(cd $(EXAMPLESDIR) && find . -name '*.itf' -exec 'rm' -f {} \; )
++	mkdir -p $(DESTDIR)$(EXAMPLESDIR)
++	-chmod $(EXECMODE) $(DESTDIR)$(EXAMPLESDIR)
++	-cp -pR $(ALLFILES) $(DESTDIR)$(EXAMPLESDIR)
++	-@(cd $(DESTDIR)$(EXAMPLESDIR) && find . -type d -exec chmod $(EXECMODE) {} \; )
++	-@(cd $(DESTDIR)$(EXAMPLESDIR) && find . ! -type d -exec chmod $(DATAMODE) {} \; )
++	-@(cd $(DESTDIR)$(EXAMPLESDIR) && find . -name '*~' -exec 'rm' -f {} \; )
++	-@(cd $(DESTDIR)$(EXAMPLESDIR) && find . -name '*.po' -exec 'rm' -f {} \; )
++	-@(cd $(DESTDIR)$(EXAMPLESDIR) && find . -name '*.itf' -exec 'rm' -f {} \; )
+ 
+ uninstall:
+ 	@echo "*** ---------------------------------------------------------"
+ 	@echo "*** Uninstalling $(BASEMAIN) examples..."
+-	@echo "*** (in $(EXAMPLESDIR))"
++	@echo "*** (in $(DESTDIR)$(EXAMPLESDIR))"
+ 	@echo "*** ---------------------------------------------------------"
+-	-rm -r $(EXAMPLESDIR)
++	-rm -r $(DESTDIR)$(EXAMPLESDIR)
+ 
+ realclean: distclean
+ 	/bin/rm -rf hw hw.cpx
+diff -ru ciao-1.10p8/lib/auto_compile_options.pl ciao-1.10p8.n/lib/auto_compile_options.pl
+--- ciao-1.10p8/lib/auto_compile_options.pl	2007-01-28 18:30:19.000000000 +0100
++++ ciao-1.10p8.n/lib/auto_compile_options.pl	2009-02-20 15:11:22.000000000 +0100
+@@ -1,13 +1,11 @@
+ foreign_compiler_options('LINUX','i86','gcc',['-fPIC']).
+ foreign_linker_options('LINUX','i86','ld',['-shared']).
++foreign_compiler_options('Win32','i86','i386-mingw32-gcc',[]).
++foreign_linker_options('Win32','i86','i386-mingw32-gcc',['-c']).
+ foreign_compiler_options('DARWIN','ppc','cc',['-fPIC']).
+ foreign_linker_options('DARWIN','ppc','cc',['-flat_namespace -bundle -undefined suppress']).
+ foreign_compiler_options('IRIX','mips','cc',[]).
+ foreign_linker_options('IRIX','mips','ld',['-shared']).
+-foreign_compiler_options('LINUX','Sparc','gcc',['-fPIC']).
+-foreign_linker_options('LINUX','Sparc','gcc',['-shared']).
+-foreign_compiler_options('LINUX','Sparc64','gcc',['-fPIC']).
+-foreign_linker_options('LINUX','Sparc64','gcc',['-shared']).
+ foreign_compiler_options('LINUX','alpha','gcc',['-fPIC']).
+ foreign_linker_options('LINUX','alpha','gcc',['-shared']).
+ foreign_compiler_options('LINUX','armv4l','gcc',['-fPIC']).
+@@ -18,19 +16,21 @@
+ foreign_linker_options('LINUX','i86_64','ld',['-melf_i386 -fPIC -shared']).
+ foreign_compiler_options('LINUX','ppc','gcc',['-fPIC']).
+ foreign_linker_options('LINUX','ppc','gcc',['-shared']).
+-foreign_compiler_options('Dynix','i86','cc',[]).
+-foreign_linker_options('Dynix','i86','ld',[]).
++foreign_compiler_options('LINUX','Sparc','gcc',['-fPIC']).
++foreign_linker_options('LINUX','Sparc','gcc',['-shared']).
++foreign_compiler_options('LINUX','Sparc64','gcc',['-fPIC']).
++foreign_linker_options('LINUX','Sparc64','gcc',['-shared']).
++foreign_compiler_options('Solaris','i86','gcc',[]).
++foreign_linker_options('Solaris','i86','ld',['-G']).
+ foreign_compiler_options('Solaris','Sparc','gcc',[]).
+ foreign_linker_options('Solaris','Sparc','ld',['-G']).
+ foreign_compiler_options('Solaris','Sparc64','gcc',[]).
+ foreign_linker_options('Solaris','Sparc64','ld',['-G']).
+-foreign_compiler_options('Solaris','i86','gcc',[]).
+-foreign_linker_options('Solaris','i86','ld',['-G']).
+ foreign_compiler_options('SunOS4','Sparc','gcc',['-fPIC']).
+ foreign_linker_options('SunOS4','Sparc','ld',[]).
++foreign_compiler_options('Dynix','i86','cc',[]).
++foreign_linker_options('Dynix','i86','ld',[]).
+ foreign_compiler_options('Win32','alpha','gcc',[]).
+ foreign_linker_options('Win32','alpha','gcc',['-c']).
+ foreign_compiler_options('Win32','i86','gcc',['-shared']).
+ foreign_linker_options('Win32','i86','gcc',['-c']).
+-foreign_compiler_options('Win32','i86','i386-mingw32-gcc',[]).
+-foreign_linker_options('Win32','i86','i386-mingw32-gcc',['-c']).
+diff -ru ciao-1.10p8/lib/Makefile ciao-1.10p8.n/lib/Makefile
+--- ciao-1.10p8/lib/Makefile	2007-01-17 16:00:12.000000000 +0100
++++ ciao-1.10p8.n/lib/Makefile	2009-02-23 14:57:57.000000000 +0100
+@@ -5,7 +5,7 @@
+ include ../SETTINGS
+ include ../SHARED
+ #---------------------------------------------------------------------------
+-STDLIBDIR = $(REALLIBDIR)/lib
++STDLIBDIR = $(DESTDIR)/$(REALLIBDIR)/lib
+ ALLFILES = *
+ #---------------------------------------------------------------------------
+ # Local compilation of all libraries: since the CIAO compiler takes
+diff -ru ciao-1.10p8/library/Makefile ciao-1.10p8.n/library/Makefile
+--- ciao-1.10p8/library/Makefile	2004-12-07 04:13:08.000000000 +0100
++++ ciao-1.10p8.n/library/Makefile	2009-02-23 15:21:52.000000000 +0100
+@@ -92,21 +92,21 @@
+ 	@echo "*** Installing $(BASEMAIN) 'library' libraries..."
+ 	@echo "*** (in $(STDLIBDIR))"
+ 	@echo "*** ---------------------------------------------------------"
+-	mkdir -p $(STDLIBDIR)
+-	-chmod $(EXECMODE) $(STDLIBDIR)
++	mkdir -p $(DESTDIR)$(STDLIBDIR)
++	-chmod $(EXECMODE) $(DESTDIR)$(STDLIBDIR)
+ #	-cp -pR $(ALLFILES) $(STDLIBDIR) # R gives problems in Darwin
+-	-cp -pr $(ALLFILES) $(STDLIBDIR)
++	-cp -pr $(ALLFILES) $(DESTDIR)$(STDLIBDIR)
+ 	-cd pillow && $(MAKE) install
+-	-(cd $(STDLIBDIR) && find . -type d -exec chmod $(EXECMODE) {} \; )
+-	-(cd $(STDLIBDIR) && find . ! -type d -exec chmod $(DATAMODE) {} \; )
+-	-(cd $(STDLIBDIR) && find . -name '*~' -exec 'rm' -f {} \; )
++	-(cd $(DESTDIR)$(STDLIBDIR) && find . -type d -exec chmod $(EXECMODE) {} \; )
++	-(cd $(DESTDIR)$(STDLIBDIR) && find . ! -type d -exec chmod $(DATAMODE) {} \; )
++	-(cd $(DESTDIR)$(STDLIBDIR) && find . -name '*~' -exec 'rm' -f {} \; )
+ 
+ uninstall:
+ 	@echo "*** ---------------------------------------------------------"
+ 	@echo "*** Uninstalling $(BASEMAIN) 'library' libraries..."
+-	@echo "*** (deleting $(STDLIBDIR))"
++	@echo "*** (deleting $(DESTDIR)$(STDLIBDIR))"
+ 	@echo "*** ---------------------------------------------------------"
+-	-rm -rf $(STDLIBDIR)
++	-rm -rf $(DESTDIR)$(STDLIBDIR)
+ 
+ # *.itf *.po *.asr are eliminated recursively so that no Makefiles
+ # underneath are needed for cleaning up prolog-only libraries. MH.
+diff -ru ciao-1.10p8/Makefile ciao-1.10p8.n/Makefile
+--- ciao-1.10p8/Makefile	2004-12-07 04:13:08.000000000 +0100
++++ ciao-1.10p8.n/Makefile	2009-02-23 15:09:33.000000000 +0100
+@@ -233,7 +233,7 @@
+ 	@echo "*** ---------------------------------------------------------"
+ 	@echo "*** Installing $(BASEMAIN) engine for $(OSNAME)$(ARCHNAME)..."
+ 	@echo "*** ---------------------------------------------------------"
+-	-(umask 002; mkdir -p $(REALLIBDIR) ; \
++	-(umask 002; mkdir -p $(DESTDIR)$(REALLIBDIR) ; \
+ 	 cd $(OBJDIR) && $(MAKE) install LD=$(LD) \
+ 	 CC=$(CC) CFLAGS='$(CFLAGS)' LDFLAGS='$(LDFLAGS)' LIBS=$(LIBS))
+ 
+@@ -252,15 +252,15 @@
+ 	@echo "*** ---------------------------------------------------------"
+ 	@echo "*** Installing C include files for $(OSNAME)$(ARCHNAME)..."
+ 	@echo "*** ---------------------------------------------------------"
+-	-mkdir -p $(REALLIBDIR)/include
+-	-chmod $(EXECMODE) $(REALLIBDIR)/include
+-	-mkdir -p $(INSTALLEDINCLUDEDIR)
+-	-chmod $(EXECMODE) $(INSTALLEDINCLUDEDIR)
+-	-cp $(NODEBUGSRCINCLUDEDIR)/* $(INSTALLEDINCLUDEDIR)
+-	-chmod $(DATAMODE) $(INSTALLEDINCLUDEDIR)/*
+-	-mkdir -p $(INCLUDEROOT)
+-	-rm -f $(INCLUDEROOT)/ciao_prolog.h
+-	-ln -s $(INSTALLEDINCLUDEDIR)/ciao_prolog.h $(INCLUDEROOT)/ciao_prolog.h
++	-mkdir -p $(DESTDIR)$(REALLIBDIR)/include
++	-chmod $(EXECMODE) $(DESTDIR)$(REALLIBDIR)/include
++	-mkdir -p $(DESTDIR)$(INSTALLEDINCLUDEDIR)
++	-chmod $(EXECMODE) $(DESTDIR)$(INSTALLEDINCLUDEDIR)
++	-cp $(NODEBUGSRCINCLUDEDIR)/* $(DESTDIR)$(INSTALLEDINCLUDEDIR)
++	-chmod $(DATAMODE) $(DESTDIR)$(INSTALLEDINCLUDEDIR)/*
++	-mkdir -p $(DESTDIR)$(INCLUDEROOT)
++	-rm -f $(DESTDIR)$(INCLUDEROOT)/ciao_prolog.h
++	-ln -s $(INSTALLEDINCLUDEDIR)/ciao_prolog.h $(DESTDIR)$(INCLUDEROOT)/ciao_prolog.h
+ 
+ uninstallincludes:
+ 	@echo "*** ---------------------------------------------------------"
+@@ -275,9 +275,9 @@
+ 	@echo "*** ========================================================="
+ 	@echo "*** Installing ciao"
+ 	@echo "*** ========================================================="
+-	-mkdir -p $(REALLIBDIR)
+-	-chmod $(EXECMODE) $(LIBDIR)
+-	-chmod $(EXECMODE) $(REALLIBDIR)
++	-mkdir -p $(DESTDIR)$(REALLIBDIR)
++	-chmod $(EXECMODE) $(DESTDIR)$(LIBDIR)
++	-chmod $(EXECMODE) $(DESTDIR)$(REALLIBDIR)
+ 	$(MAKE) justinstalleng
+ 	$(MAKE) installincludes
+ 	cd ciaoc &&   $(MAKE) install
+@@ -290,7 +290,7 @@
+ ifeq ($(INSTALL_EMACS_SUPPORT),yes)
+ 	cd emacs-mode &&   $(MAKE) install
+ endif
+-	find $(REALLIBDIR) -type d -exec chmod $(EXECMODE) {} \;
++	find $(DESTDIR)$(REALLIBDIR) -type d -exec chmod $(EXECMODE) {} \;
+ 	cd doc && $(MAKE) install DOCFORMATS="$(TARDOCFORMATS)"
+ 	@echo "*** ========================================================="
+ 	@echo "*** Ciao installation completed"
+@@ -318,7 +318,7 @@
+ 	cd examples && $(MAKE) uninstall
+ 	cd emacs-mode && $(MAKE) uninstall
+ 	cd doc && $(MAKE) uninstall DOCFORMATS="$(TARDOCFORMATS)"
+-	-rm -rf $(REALLIBDIR)
++	-rm -rf $(DESTDIR)$(REALLIBDIR)
+ #	-rm -r $(LIBDIR)
+ 	@echo "*** ========================================================="
+ 	@echo "*** Ciao uninstallation completed"
+diff -ru ciao-1.10p8/SETTINGS ciao-1.10p8.n/SETTINGS
+--- ciao-1.10p8/SETTINGS	2007-01-28 18:33:07.000000000 +0100
++++ ciao-1.10p8.n/SETTINGS	2009-02-23 14:55:37.000000000 +0100
+@@ -5,6 +5,8 @@
+ # Define this to be a directory where the sources are reachable
+ # system-wide
+ 
++DESTDIR=
++
+ # SRC=/usr/local/src/ciao
+ #   or
+ # SRC=/usr/src/ciao
+diff -ru ciao-1.10p8/shell/Makefile ciao-1.10p8.n/shell/Makefile
+--- ciao-1.10p8/shell/Makefile	2004-12-07 01:31:42.000000000 +0100
++++ ciao-1.10p8.n/shell/Makefile	2009-02-23 15:38:03.000000000 +0100
+@@ -24,26 +24,26 @@
+ 	rm $(ASRGEN)
+ 
+ install:
+-	-mkdir -p $(BINDIR)
+-	-cp $(TOPLEVELSHELL) $(BINDIR)/$(TOPLEVELSHELL)-$(VERSION)
+-	-cp $(SCRIPTSHELL) $(BINDIR)/$(SCRIPTSHELL)-$(VERSION)
+-	-chmod $(EXECMODE) $(BINDIR)/$(TOPLEVELSHELL)-$(VERSION)
+-	-chmod $(EXECMODE) $(BINDIR)/$(SCRIPTSHELL)-$(VERSION)
+-	-rm -f $(BINDIR)/$(TOPLEVELSHELL) 
+-	-rm -f $(BINDIR)/$(SCRIPTSHELL) 
+-	-ln -s $(TOPLEVELSHELL)-$(VERSION) $(BINDIR)/$(TOPLEVELSHELL) 
+-	-ln -s $(SCRIPTSHELL)-$(VERSION) $(BINDIR)/$(SCRIPTSHELL) 
++	-mkdir -p $(DESTDIR)$(BINDIR)
++	-cp $(TOPLEVELSHELL) $(DESTDIR)$(BINDIR)/$(TOPLEVELSHELL)-$(VERSION)
++	-cp $(SCRIPTSHELL) $(DESTDIR)$(BINDIR)/$(SCRIPTSHELL)-$(VERSION)
++	-chmod $(EXECMODE) $(DESTDIR)$(BINDIR)/$(TOPLEVELSHELL)-$(VERSION)
++	-chmod $(EXECMODE) $(DESTDIR)$(BINDIR)/$(SCRIPTSHELL)-$(VERSION)
++	-rm -f $(DESTDIR)$(BINDIR)/$(TOPLEVELSHELL) 
++	-rm -f $(DESTDIR)$(BINDIR)/$(SCRIPTSHELL) 
++	-ln -s $(TOPLEVELSHELL)-$(VERSION) $(DESTDIR)$(BINDIR)/$(TOPLEVELSHELL) 
++	-ln -s $(SCRIPTSHELL)-$(VERSION) $(DESTDIR)$(BINDIR)/$(SCRIPTSHELL) 
+ 
+ 
+ uninstall:
+-	@/bin/rm -f $(BINDIR)/$(TOPLEVELSHELL)-$(VERSION)
+-	@/bin/rm -f $(BINDIR)/$(SCRIPTSHELL)-$(VERSION)
++	@/bin/rm -f $(DESTDIR)$(BINDIR)/$(TOPLEVELSHELL)-$(VERSION)
++	@/bin/rm -f $(DESTDIR)$(BINDIR)/$(SCRIPTSHELL)-$(VERSION)
+ # Do not remove the links if another version has already been installed
+-	@if [ ! -f $(BINDIR)/$(TOPLEVELSHELL) ] ; then  \
+-	/bin/rm -f $(BINDIR)/$(TOPLEVELSHELL) ; \
++	@if [ ! -f $(DESTDIR)$(BINDIR)/$(TOPLEVELSHELL) ] ; then  \
++	/bin/rm -f $(DESTDIR)$(BINDIR)/$(TOPLEVELSHELL) ; \
+ 	fi
+-	@if [ ! -f $(BINDIR)/$(SCRIPTSHELL) ] ; then  \
+-	/bin/rm -f $(BINDIR)/$(SCRIPTSHELL) ; \
++	@if [ ! -f $(DESTDIR)$(BINDIR)/$(SCRIPTSHELL) ] ; then  \
++	/bin/rm -f $(DESTDIR)$(BINDIR)/$(SCRIPTSHELL) ; \
+ 	fi
+ 
+ 
+--- ciao-1.10p8/etc/Makefile	2004-12-07 01:31:42.000000000 +0100
++++ ciao-1.10p8.n/etc/Makefile	2009-02-23 16:45:47.000000000 +0100
+@@ -19,10 +19,10 @@
+ all: comp_message $(PLUTILITIES)
+ # Generate shell initialization files
+ 	@./substitute_string documentation_directory $(DOCDIR) \
+-		binary_directory $(BINDIR) \
++		binary_directory $(DESTDIR)$(BINDIR) \
+ 		DOTcshrc.skel DOTcshrc
+ 	@./substitute_string documentation_directory $(DOCDIR) \
+-		binary_directory $(BINDIR) \
++		binary_directory $(DESTDIR)$(BINDIR) \
+ 		DOTprofile.skel DOTprofile
+ # Generate startup script
+ 	@./substitute_string '<CIAOLIBDIR>' $(LIBDIR) \
+@@ -47,46 +47,47 @@
+ 	@echo "*** ---------------------------------------------------------"
+ 	@echo "*** Installing user shell initialization skeletons..."
+ 	@echo "*** ---------------------------------------------------------"
+-	@-mkdir -p $(BINDIR)
+-	@-chmod $(EXECMODE) $(BINDIR)
++	@-mkdir -p $(DESTDIR)$(BINDIR)
++	@-chmod $(EXECMODE) $(DESTDIR)$(BINDIR)
+ # Copy shell initialization files
+-	@-cp DOTprofile $(REALLIBDIR)/DOTprofile
+-	@-chmod $(DATAMODE) $(REALLIBDIR)/DOTprofile
+-	@-rm -f $(LIBDIR)/DOTprofile
+-	@-ln -s $(REALLIBDIR)/DOTprofile $(LIBDIR)/DOTprofile
+-	@-cp DOTcshrc $(REALLIBDIR)/DOTcshrc
+-	@-chmod $(DATAMODE) $(REALLIBDIR)/DOTcshrc
+-	@-rm -f $(LIBDIR)/DOTcshrc
+-	@-ln -s $(REALLIBDIR)/DOTcshrc $(LIBDIR)/DOTcshrc
++	@-cp DOTprofile $(DESTDIR)$(REALLIBDIR)/DOTprofile
++	@-chmod $(DATAMODE) $(DESTDIR)$(REALLIBDIR)/DOTprofile
++	@-rm -f $(DESTDIR)$(LIBDIR)/DOTprofile
++	@-ln -s $(REALLIBDIR)/DOTprofile $(DESTDIR)$(LIBDIR)/DOTprofile
++	@-cp DOTcshrc $(DESTDIR)$(REALLIBDIR)/DOTcshrc
++	@-chmod $(DATAMODE) $(DESTDIR)$(REALLIBDIR)/DOTcshrc
++	@-rm -f $(DESTDIR)$(LIBDIR)/DOTcshrc
++	@-ln -s $(REALLIBDIR)/DOTcshrc $(DESTDIR)$(LIBDIR)/DOTcshrc
+ # Copy startup script
+ 	@echo "*** ---------------------------------------------------------" 
+ 	@echo "*** Installing ciao startup script pointing to ciao-$(VERSION)..."
+ 	@echo "*** ---------------------------------------------------------" 
+-	@-rm -f $(BINDIR)/ciao-$(VERSION)
+-	@-cp ciao-$(VERSION) $(BINDIR)
+-	@-chmod $(EXECMODE) $(BINDIR)/ciao-$(VERSION)
+-	@-rm -f $(BINDIR)/ciao
+-	@-ln -s $(BINDIR)/ciao-$(VERSION) $(BINDIR)/ciao
++	@-rm -f $(DESTDIR)$(BINDIR)/ciao-$(VERSION)
++	@-cp ciao-$(VERSION) $(DESTDIR)$(BINDIR)
++	@-chmod $(EXECMODE) $(DESTDIR)$(BINDIR)/ciao-$(VERSION)
++	@-rm -f $(DESTDIR)$(BINDIR)/ciao
++	@-ln -s $(BINDIR)/ciao-$(VERSION) $(DESTDIR)$(BINDIR)/ciao
+ # Copy message to new users
+-	@-cp NewUser-install $(REALLIBDIR)/NewUser
+-	@-chmod $(DATAMODE) $(REALLIBDIR)/NewUser
+-	@-rm -f $(LIBDIR)/NewUser
+-	@-ln -s $(REALLIBDIR)/NewUser $(LIBDIR)/NewUser
++	@-cp NewUser-install $(DESTDIR)$(REALLIBDIR)/NewUser
++	@-chmod $(DATAMODE) $(DESTDIR)$(REALLIBDIR)/NewUser
++	@-rm -f $(DESTDIR)$(LIBDIR)/NewUser
++	@-ln -s $(REALLIBDIR)/NewUser $(DESTDIR)$(LIBDIR)/NewUser
+ ifeq ($(INSTALL_PROLOG_NAME),yes)
+ 	@echo "*** ---------------------------------------------------------" 
+ 	@echo "*** Making 'prolog' point to ciao-$(VERSION)..."
+ 	@echo "*** ---------------------------------------------------------" 
+-	@-rm -f $(BINDIR)/prolog
+-	@-ln -s $(BINDIR)/ciao-$(VERSION) $(BINDIR)/prolog
++	@-rm -f $(DESTDIR)$(BINDIR)/prolog
++	@-ln -s $(BINDIR)/ciao-$(VERSION) $(DESTDIR)$(BINDIR)/prolog
+ endif
+ 	@echo "*** ---------------------------------------------------------"
+ 	@echo "*** Installing utilities from etc directory..."
+ 	@echo "*** ---------------------------------------------------------"
+ 	@for File in $(PLUTILITIES) $(SHSCRIPTS) ; do \
+-             /bin/rm -f $(BINDIR)/$${File}-$(VERSION) ; \
+-             /bin/cp $${File} $(BINDIR)/$${File}-$(VERSION) ; \
+-             /bin/ln -sf $${File}-$(VERSION) $(BINDIR)/$${File} ; \
+-             /bin/chmod $(EXECMODE) $(BINDIR)/$${File}-$(VERSION) ; \
++             /bin/rm -f $(DESTDIR)$(BINDIR)/$${File}-$(VERSION) ; \
++             echo /bin/cp $${File} $(DESTDIR)$(BINDIR)/$${File}-$(VERSION) ; \
++             /bin/cp $${File} $(DESTDIR)$(BINDIR)/$${File}-$(VERSION) ; \
++             /bin/ln -sf $${File}-$(VERSION) $(DESTDIR)$(BINDIR)/$${File} ; \
++             /bin/chmod $(EXECMODE) $(DESTDIR)$(BINDIR)/$${File}-$(VERSION) ; \
+ 	done
+ 	@echo "*** ---------------------------------------------------------"
+ 	@echo "*** Finished installing scripts and utilities from etc dir."
+@@ -97,25 +98,25 @@
+ 	@echo "*** ---------------------------------------------------------"
+ 	@echo "*** Removing user initialization script skeletons..."
+ 	@echo "*** ---------------------------------------------------------"
+-	-rm -f $(REALLIBDIR)/DOTprofile $(LIBDIR)/DOTprofile
+-	-rm -f $(REALLIBDIR)/DOTcshrc $(LIBDIR)/DOTcshrc
+-	-rm -f $(BINDIR)/ciao $(BINDIR)/ciao-$(VERSION)
++	-rm -f $(DESTDIR)$(REALLIBDIR)/DOTprofile $(DESTDIR)$(LIBDIR)/DOTprofile
++	-rm -f $(DESTDIR)$(REALLIBDIR)/DOTcshrc $(DESTDIR)$(LIBDIR)/DOTcshrc
++	-rm -f $(DESTDIR)$(BINDIR)/ciao $(DESTDIR)$(BINDIR)/ciao-$(VERSION)
+ ifeq ($(INSTALL_PROLOG_NAME),yes)
+-	-rm -f $(BINDIR)/prolog
++	-rm -f $(DESTDIR)$(BINDIR)/prolog
+ endif
+-	-rm -f $(LIBDIR)/NewUser
++	-rm -f $(DESTDIR)$(LIBDIR)/NewUser
+ 	@echo "*** ---------------------------------------------------------"
+ 	@echo "*** Removing utilities from etc directory..."
+ 	@echo "*** ---------------------------------------------------------"
+ # Remove the files themselves and the possible dangling symbolic links 
+ 	@-for File in $(PLUTILITIES) $(SHSCRIPTS) ; do \
+-	     if [ -f $(BINDIR)/$${File}-$(VERSION) ]; \
++	     if [ -f $(DESTDIR)$(BINDIR)/$${File}-$(VERSION) ]; \
+                 then echo "Removing $${File}-$(VERSION)..."; \
+-                  rm -f $(BINDIR)/$${File}-$(VERSION) ; \
++                  rm -f $(DESTDIR)$(BINDIR)/$${File}-$(VERSION) ; \
+ 	     fi ; \
+-	     if [ ! -f $(BINDIR)/$${File} ]; \
++	     if [ ! -f $(DESTDIR)$(BINDIR)/$${File} ]; \
+                 then echo "Removing $${File}..."; \
+-                  rm -f $(BINDIR)/$${File} ; \
++                  rm -f $(DESTDIR)$(BINDIR)/$${File} ; \
+ 	   fi ; \
+ 	 done
+ 	@echo "*** ---------------------------------------------------------"
+--- ciao-1.10p8/doc/reference/Makefile	2004-07-29 17:17:23.000000000 +0200
++++ ciao-1.10p8.n/doc/reference/Makefile	2009-02-24 11:42:05.000000000 +0100
+@@ -536,65 +536,65 @@
+ 	@$(ECHO) "*** --------------------------------------------------------"
+ 	@$(ECHO) "*** Installing .texi file for $(BASEMAIN) ..."
+ 	@$(ECHO) "*** --------------------------------------------------------"
+-	-@mkdir -p $(DOCDIR)
+-	-@chmod $(EXECMODE) $(DOCDIR)
+-	-@cp $(BASEMAIN).texi $(DOCDIR) 
+-	-@cp auto*.eps $(DOCDIR) 
+-	-@chmod $(DATAMODE) $(DOCDIR)/$(BASEMAIN).texi
+-	-@chmod $(DATAMODE) $(DOCDIR)/auto*.eps
++	-@mkdir -p $(DESTDIR)$(DOCDIR)
++	-@chmod $(EXECMODE) $(DESTDIR)$(DOCDIR)
++	-@cp $(BASEMAIN).texi $(DESTDIR)$(DOCDIR) 
++	-@cp auto*.eps $(DESTDIR)$(DOCDIR) 
++	-@chmod $(DATAMODE) $(DESTDIR)$(DOCDIR)/$(BASEMAIN).texi
++	-@chmod $(DATAMODE) $(DESTDIR)$(DOCDIR)/auto*.eps
+ ifdef COMPRESSDVIPS
+-	-$(COMPRESSDVIPS) $(DOCDIR)/$(BASEMAIN).texi
++	-$(COMPRESSDVIPS) $(DESTDIR)$(DOCDIR)/$(BASEMAIN).texi
+ 	-@$(ECHO) "<UL class=htmlindex><LI>\
+               <A HREF=$(BASEMAIN).texi.gz><B class=applname>$(BASEMAIN)</B> \
+               Reference Manual - texinfo,gzipped</A></UL>" \
+-              > $(DOCDIR)/$(BASEMAIN)_texi.htmlindex
++              > $(DESTDIR)$(DOCDIR)/$(BASEMAIN)_texi.htmlindex
+ else
+ 	-@$(ECHO) "<UL class=htmlindex><LI>\
+               <A HREF=$(BASEMAIN).texi><B  class=applname>$(BASEMAIN)</B> \
+               Reference Manual - texinfo</A></UL>" \
+-              > $(DOCDIR)/$(BASEMAIN)_texi.htmlindex
++              > $(DESTDIR)$(DOCDIR)/$(BASEMAIN)_texi.htmlindex
+ endif
+-	-@chmod $(DATAMODE) $(DOCDIR)/$(BASEMAIN)_texi.htmlindex
++	-@chmod $(DATAMODE) $(DESTDIR)$(DOCDIR)/$(BASEMAIN)_texi.htmlindex
+ 
+ uninstalltexi: 
+ 	@$(ECHO) "*** --------------------------------------------------------"
+ 	@$(ECHO) "*** Uninstalling .texi file for $(BASEMAIN) ..."
+ 	@$(ECHO) "*** --------------------------------------------------------"
+-	-@rm -f $(DOCDIR)/$(BASEMAIN).texi*
+-	-@rm -f $(DOCDIR)/$(BASEMAIN)_texi.htmlindex
+-	-@rm -f $(DOCDIR)/auto*.eps
++	-@rm -f $(DESTDIR)$(DOCDIR)/$(BASEMAIN).texi*
++	-@rm -f $(DESTDIR)$(DOCDIR)/$(BASEMAIN)_texi.htmlindex
++	-@rm -f $(DESTDIR)$(DOCDIR)/auto*.eps
+ 
+ # $(BASEMAIN).dvi 
+ installdvi: 
+ 	@$(ECHO) "*** --------------------------------------------------------"
+ 	@$(ECHO) "*** Installing .dvi file for $(BASEMAIN) ..."
+ 	@$(ECHO) "*** --------------------------------------------------------"
+-	-@mkdir -p $(DOCDIR)
+-	-@chmod $(EXECMODE) $(DOCDIR)
+-	-@cp $(BASEMAIN).dvi $(DOCDIR) 
+-	-@cp auto*.eps $(DOCDIR) 
+-	-@chmod $(DATAMODE) $(DOCDIR)/$(BASEMAIN).dvi
+-	-@chmod $(DATAMODE) $(DOCDIR)/auto*.eps
++	-@mkdir -p $(DESTDIR)$(DOCDIR)
++	-@chmod $(EXECMODE) $(DESTDIR)$(DOCDIR)
++	-@cp $(BASEMAIN).dvi $(DESTDIR)$(DOCDIR) 
++	-@cp auto*.eps $(DESTDIR)$(DOCDIR) 
++	-@chmod $(DATAMODE) $(DESTDIR)$(DOCDIR)/$(BASEMAIN).dvi
++	-@chmod $(DATAMODE) $(DESTDIR)$(DOCDIR)/auto*.eps
+ ifdef COMPRESSDVIPS
+-	-$(COMPRESSDVIPS) $(DOCDIR)/$(BASEMAIN).dvi
++	-$(COMPRESSDVIPS) $(DESTDIR)$(DOCDIR)/$(BASEMAIN).dvi
+ 	-@$(ECHO) "<UL class=htmlindex><LI>\
+             <A HREF=$(BASEMAIN).dvi.gz><B class=applname>$(BASEMAIN)</B> \
+             Reference Manual - dvi,gzipped</A></UL>" \
+-            > $(DOCDIR)/$(BASEMAIN)_dvi.htmlindex
++            > $(DESTDIR)$(DOCDIR)/$(BASEMAIN)_dvi.htmlindex
+ else
+ 	-@$(ECHO) "<UL class=htmlindex><LI>\
+             <A HREF=$(BASEMAIN).dvi><B class=applname>$(BASEMAIN)</B> \
+             Reference Manual - dvi</A></UL>" \
+-            > $(DOCDIR)/$(BASEMAIN)_dvi.htmlindex
++            > $(DESTDIR)$(DOCDIR)/$(BASEMAIN)_dvi.htmlindex
+ endif
+-	-@chmod $(DATAMODE) $(DOCDIR)/$(BASEMAIN)_dvi.htmlindex
++	-@chmod $(DATAMODE) $(DESTDIR)$(DOCDIR)/$(BASEMAIN)_dvi.htmlindex
+ 
+ uninstalldvi: 
+ 	@$(ECHO) "*** --------------------------------------------------------"
+ 	@$(ECHO) "*** Uninstalling .dvi file for $(BASEMAIN) ..."
+ 	@$(ECHO) "*** --------------------------------------------------------"
+-	-@rm -f $(DOCDIR)/$(BASEMAIN).dvi*
+-	-@rm -f $(DOCDIR)/$(BASEMAIN)_dvi.htmlindex
++	-@rm -f $(DESTDIR)$(DOCDIR)/$(BASEMAIN).dvi*
++	-@rm -f $(DESTDIR)$(DOCDIR)/$(BASEMAIN)_dvi.htmlindex
+ 
+ # This is really not safe: there may be figures from other documents here...
+ #	-@rm -f $(DOCDIR)/auto*.eps
+@@ -604,21 +604,21 @@
+ 	@$(ECHO) "*** --------------------------------------------------------"
+ 	@$(ECHO) "*** Installing .ps file for $(BASEMAIN) ..."
+ 	@$(ECHO) "*** --------------------------------------------------------"
+-	-@mkdir -p $(DOCDIR)
+-	-@chmod $(EXECMODE) $(DOCDIR)
+-	-@cp $(BASEMAIN).ps $(DOCDIR) 
+-	-@chmod $(DATAMODE) $(DOCDIR)/$(BASEMAIN).ps
++	-@mkdir -p $(DESTDIR)$(DOCDIR)
++	-@chmod $(EXECMODE) $(DESTDIR)$(DOCDIR)
++	-@cp $(BASEMAIN).ps $(DESTDIR)$(DOCDIR) 
++	-@chmod $(DATAMODE) $(DESTDIR)$(DOCDIR)/$(BASEMAIN).ps
+ ifdef COMPRESSDVIPS
+-	$(COMPRESSDVIPS) $(DOCDIR)/$(BASEMAIN).ps
++	$(COMPRESSDVIPS) $(DESTDIR)$(DOCDIR)/$(BASEMAIN).ps
+ 	-@$(ECHO) "<UL class=htmlindex><LI>\
+             <A HREF=$(BASEMAIN).ps.gz><B class=applname>$(BASEMAIN)</B> \
+             Reference Manual - postscript,gzipped</A></UL>" \
+-            > $(DOCDIR)/$(BASEMAIN)_ps.htmlindex
++            > $(DESTDIR)$(DOCDIR)/$(BASEMAIN)_ps.htmlindex
+ else
+ 	-@$(ECHO) "<UL class=htmlindex><LI>\
+             <A HREF=$(BASEMAIN).ps><B class=applname>$(BASEMAIN)</B> \
+             Reference Manual - postscript</A></UL>" \
+-            > $(DOCDIR)/$(BASEMAIN)_ps.htmlindex
++            > $(DESTDIR)$(DOCDIR)/$(BASEMAIN)_ps.htmlindex
+ endif
+ 	-@chmod $(DATAMODE) $(DOCDIR)/$(BASEMAIN)_ps.htmlindex
+ 
+@@ -626,144 +626,144 @@
+ 	@$(ECHO) "*** --------------------------------------------------------"
+ 	@$(ECHO) "*** Uninstalling .ps for $(BASEMAIN) ..."
+ 	@$(ECHO) "*** --------------------------------------------------------"
+-	-@rm -f $(DOCDIR)/$(BASEMAIN).ps*
+-	-@rm -f $(DOCDIR)/$(BASEMAIN)_ps.htmlindex
++	-@rm -f $(DESTDIR)$(DOCDIR)/$(BASEMAIN).ps*
++	-@rm -f $(DESTDIR)$(DOCDIR)/$(BASEMAIN)_ps.htmlindex
+ 
+ # $(BASEMAIN).pdf
+ installpdf: 
+ 	@$(ECHO) "*** --------------------------------------------------------"
+ 	@$(ECHO) "*** Installing .pdf file for $(BASEMAIN) ..."
+ 	@$(ECHO) "*** --------------------------------------------------------"
+-	-@mkdir -p $(DOCDIR)
+-	-@chmod $(EXECMODE) $(DOCDIR)
+-	-@cp $(BASEMAIN).pdf $(DOCDIR) 
+-	-@chmod $(DATAMODE) $(DOCDIR)/$(BASEMAIN).pdf
++	-@mkdir -p $(DESTDIR)$(DOCDIR)
++	-@chmod $(EXECMODE) $(DESTDIR)$(DOCDIR)
++	-@cp $(BASEMAIN).pdf $(DESTDIR)$(DOCDIR) 
++	-@chmod $(DATAMODE) $(DESTDIR)$(DOCDIR)/$(BASEMAIN).pdf
+ ifdef COMPRESSDVIPS
+-	$(COMPRESSDVIPS) $(DOCDIR)/$(BASEMAIN).pdf
++	$(COMPRESSDVIPS) $(DESTDIR)$(DOCDIR)/$(BASEMAIN).pdf
+ 	-@$(ECHO) "<UL class=htmlindex><LI>\
+             <A HREF=$(BASEMAIN).pdf.gz><B class=applname>$(BASEMAIN)</B> \
+             Reference Manual - pdf,gzipped</A></UL>" \
+-            > $(DOCDIR)/$(BASEMAIN)_pdf.htmlindex
++            > $(DESTDIR)$(DOCDIR)/$(BASEMAIN)_pdf.htmlindex
+ else
+ 	-@$(ECHO) "<UL class=htmlindex><LI>\
+             <A HREF=$(BASEMAIN).pdf><B class=applname>$(BASEMAIN)</B> \
+             Reference Manual - pdf</A></UL>" \
+-            > $(DOCDIR)/$(BASEMAIN)_pdf.htmlindex
++            > $(DESTDIR)$(DOCDIR)/$(BASEMAIN)_pdf.htmlindex
+ endif
+-	-@chmod $(DATAMODE) $(DOCDIR)/$(BASEMAIN)_pdf.htmlindex
++	-@chmod $(DATAMODE) $(DESTDIR)$(DOCDIR)/$(BASEMAIN)_pdf.htmlindex
+ 
+ uninstallpdf: 
+ 	@$(ECHO) "*** --------------------------------------------------------"
+ 	@$(ECHO) "*** Uninstalling .pdf for $(BASEMAIN) ..."
+ 	@$(ECHO) "*** --------------------------------------------------------"
+-	-@rm -f $(DOCDIR)/$(BASEMAIN).pdf*
+-	-@rm -f $(DOCDIR)/$(BASEMAIN)_pdf.htmlindex
++	-@rm -f $(DESTDIR)$(DOCDIR)/$(BASEMAIN).pdf*
++	-@rm -f $(DESTDIR)$(DOCDIR)/$(BASEMAIN)_pdf.htmlindex
+ 
+ # $(BASEMAIN).html
+ installhtml: 
+ 	@$(ECHO) "*** --------------------------------------------------------"
+ 	@$(ECHO) "*** Installing .html file(s) for $(BASEMAIN) ..."
+ 	@$(ECHO) "*** --------------------------------------------------------"
+-	-@mkdir -p $(DOCDIR)/$(BASEMAIN)_html
+-	-@chmod $(EXECMODE) $(DOCDIR)/$(BASEMAIN)_html
+-	-@cp $(BASEMAIN)_html/$(BASEMAIN)*.html $(DOCDIR)/$(BASEMAIN)_html
+-	-@chmod $(DATAMODE) $(DOCDIR)/$(BASEMAIN)_html/$(BASEMAIN)*.html
++	-@mkdir -p $(DESTDIR)$(DOCDIR)/$(BASEMAIN)_html
++	-@chmod $(EXECMODE) $(DESTDIR)$(DOCDIR)/$(BASEMAIN)_html
++	-@cp $(BASEMAIN)_html/$(BASEMAIN)*.html $(DESTDIR)$(DOCDIR)/$(BASEMAIN)_html
++	-@chmod $(DATAMODE) $(DESTDIR)$(DOCDIR)/$(BASEMAIN)_html/$(BASEMAIN)*.html
+ 	-@$(ECHO) "<UL class=htmlindex><LI>\
+             <A HREF=$(BASEMAIN)_html/$(BASEMAIN)_toc.html>\
+             <B class=applname>$(BASEMAIN)</B> Reference Manual - \
+             html</A></UL>" \
+-            > $(DOCDIR)/$(BASEMAIN)_html.htmlindex
+-	-@chmod $(DATAMODE) $(DOCDIR)/$(BASEMAIN)_html.htmlindex
+-	-@cp $(BASEMAIN)_html/auto*.jpg $(DOCDIR)/$(BASEMAIN)_html
+-	-@chmod $(DATAMODE) $(DOCDIR)/$(BASEMAIN)_html/auto*.jpg
+-	-@cp $(BASEMAIN)_html/*.css $(DOCDIR)/$(BASEMAIN)_html
+-	-@chmod $(DATAMODE) $(DOCDIR)/$(BASEMAIN)_html/*.css
++            > $(DESTDIR)$(DOCDIR)/$(BASEMAIN)_html.htmlindex
++	-@chmod $(DATAMODE) $(DESTDIR)$(DOCDIR)/$(BASEMAIN)_html.htmlindex
++	-@cp $(BASEMAIN)_html/auto*.jpg $(DESTDIR)$(DOCDIR)/$(BASEMAIN)_html
++	-@chmod $(DATAMODE) $(DESTDIR)$(DOCDIR)/$(BASEMAIN)_html/auto*.jpg
++	-@cp $(BASEMAIN)_html/*.css $(DESTDIR)$(DOCDIR)/$(BASEMAIN)_html
++	-@chmod $(DATAMODE) $(DESTDIR)$(DOCDIR)/$(BASEMAIN)_html/*.css
+ 
+ 
+ uninstallhtml: 
+ 	@$(ECHO) "*** --------------------------------------------------------"
+ 	@$(ECHO) "*** Uninstalling .html file(s) for $(BASEMAIN) ..."
+ 	@$(ECHO) "*** --------------------------------------------------------"
+-	-@rm -f $(DOCDIR)/$(BASEMAIN)_html/$(BASEMAIN)*.html
+-	-@rm -f $(DOCDIR)/$(BASEMAIN)_html/auto*.jpg
+-	-@rm -f $(DOCDIR)/$(BASEMAIN)_html/$(BASEMAIN).css
+-	-@rmdir $(DOCDIR)/$(BASEMAIN)_html
+-	-@rm -f $(DOCDIR)/$(BASEMAIN)_html.htmlindex
++	-@rm -f $(DESTDIR)$(DOCDIR)/$(BASEMAIN)_html/$(BASEMAIN)*.html
++	-@rm -f $(DESTDIR)$(DOCDIR)/$(BASEMAIN)_html/auto*.jpg
++	-@rm -f $(DESTDIR)$(DOCDIR)/$(BASEMAIN)_html/$(BASEMAIN).css
++	-@rmdir $(DESTDIR)$(DOCDIR)/$(BASEMAIN)_html
++	-@rm -f $(DESTDIR)$(DOCDIR)/$(BASEMAIN)_html.htmlindex
+ 
+ # $(BASEMAIN).info 
+ installinfo: 
+ 	@$(ECHO) "*** --------------------------------------------------------"
+ 	@$(ECHO) "*** Installing .info file(s) for $(BASEMAIN) ..."
+ 	@$(ECHO) "*** --------------------------------------------------------"
+-	-@mkdir -p $(DOCDIR)
+-	-@chmod $(EXECMODE) $(DOCDIR)
+-	-@cp $(BASEMAIN).info* $(DOCDIR) 
+-	-@chmod $(DATAMODE) $(DOCDIR)/$(BASEMAIN).info*
++	-@mkdir -p $(DESTDIR)$(DOCDIR)
++	-@chmod $(EXECMODE) $(DESTDIR)$(DOCDIR)
++	-@cp $(BASEMAIN).info* $(DESTDIR)$(DOCDIR) 
++	-@chmod $(DATAMODE) $(DESTDIR)$(DOCDIR)/$(BASEMAIN).info*
+ 	-@$(ECHO) "<UL class=htmlindex><LI> \
+               <A HREF=$(BASEMAIN).info><B class=applname>$(BASEMAIN)</B> \
+               Reference Manual - gnu info</A></UL>" \
+-              > $(DOCDIR)/$(BASEMAIN)_info.htmlindex
+-	-@chmod $(DATAMODE) $(DOCDIR)/$(BASEMAIN)_info.htmlindex
++              > $(DESTDIR)$(DOCDIR)/$(BASEMAIN)_info.htmlindex
++	-@chmod $(DATAMODE) $(DESTDIR)$(DOCDIR)/$(BASEMAIN)_info.htmlindex
+ 	@$(ECHO) "*** --------------------------------------------------------"
+ 	@$(ECHO) "*** Remember to add entry to info dir (or select infoindex)!"
+-	@$(ECHO) "*** Remember to add $(DOCDIR) to INFOPATH!"
++	@$(ECHO) "*** Remember to add $(DESTDIR)$(DOCDIR) to INFOPATH!"
+ 	@$(ECHO) "*** --------------------------------------------------------"
+ 
+ uninstallinfo: 
+ 	@$(ECHO) "*** --------------------------------------------------------"
+ 	@$(ECHO) "*** Uninstalling .info file(s) for $(BASEMAIN) ..."
+ 	@$(ECHO) "*** --------------------------------------------------------"
+-	-@rm -f $(DOCDIR)/$(BASEMAIN).info*
+-	-@rm -f $(DOCDIR)/$(BASEMAIN)_info.htmlindex
++	-@rm -f $(DESTDIR)$(DOCDIR)/$(BASEMAIN).info*
++	-@rm -f $(DESTDIR)$(DOCDIR)/$(BASEMAIN)_info.htmlindex
+ 
+ # $(BASEMAIN).ascii
+ installascii: 
+ 	@$(ECHO) "*** --------------------------------------------------------"
+ 	@$(ECHO) "*** Installing .ascii file(s) for $(BASEMAIN) ..."
+ 	@$(ECHO) "*** --------------------------------------------------------"
+-	-@mkdir -p $(DOCDIR)
+-	-@chmod $(EXECMODE) $(DOCDIR)
+-	-@cp $(BASEMAIN).ascii $(DOCDIR)
+-	-@chmod $(DATAMODE) $(DOCDIR)/$(BASEMAIN).ascii
++	-@mkdir -p $(DESTDIR)$(DOCDIR)
++	-@chmod $(EXECMODE) $(DESTDIR)$(DOCDIR)
++	-@cp $(BASEMAIN).ascii $(DESTDIR)$(DOCDIR)
++	-@chmod $(DATAMODE) $(DESTDIR)$(DOCDIR)/$(BASEMAIN).ascii
+ 	-@$(ECHO) "<UL class=htmlindex><LI> \
+               <A HREF=$(BASEMAIN).ascii> \
+               <B class=applname>$(BASEMAIN)</B> Reference Manual - \
+               ascii txt</A></UL>" \
+-              > $(DOCDIR)/$(BASEMAIN)_txt.htmlindex
+-	-@chmod $(DATAMODE) $(DOCDIR)/$(BASEMAIN)_txt.htmlindex
++              > $(DESTDIR)$(DOCDIR)/$(BASEMAIN)_txt.htmlindex
++	-@chmod $(DATAMODE) $(DESTDIR)$(DOCDIR)/$(BASEMAIN)_txt.htmlindex
+ 
+ uninstallascii: 
+ 	@$(ECHO) "*** --------------------------------------------------------"
+ 	@$(ECHO) "*** Uninstalling .ascii file(s) for $(BASEMAIN) ..."
+ 	@$(ECHO) "*** --------------------------------------------------------"
+-	-@rm -f $(DOCDIR)/$(BASEMAIN).ascii*
+-	-@rm -f $(DOCDIR)/$(BASEMAIN)_txt.htmlindex
++	-@rm -f $(DESTDIR)$(DOCDIR)/$(BASEMAIN).ascii*
++	-@rm -f $(DESTDIR)$(DOCDIR)/$(BASEMAIN)_txt.htmlindex
+ 
+ # $(BASEMAIN).manl
+ installmanl: 
+ 	@$(ECHO) "*** --------------------------------------------------------"
+ 	@$(ECHO) "*** Installing .manl as .l for $(BASEMAIN) ..."
+ 	@$(ECHO) "*** --------------------------------------------------------"
+-	-@mkdir -p $(DOCDIR)/manl
+-	-@chmod $(EXECMODE) $(DOCDIR)/manl
+-	-@cp $(BASEMAIN).manl $(DOCDIR)/manl/$(BASEMAIN).l
+-	-@chmod $(DATAMODE) $(DOCDIR)/manl/$(BASEMAIN).l
++	-@mkdir -p $(DESTDIR)$(DOCDIR)/manl
++	-@chmod $(EXECMODE) $(DESTDIR)$(DOCDIR)/manl
++	-@cp $(BASEMAIN).manl $(DESTDIR)$(DOCDIR)/manl/$(BASEMAIN).l
++	-@chmod $(DATAMODE) $(DESTDIR)$(DOCDIR)/manl/$(BASEMAIN).l
+ 	-@$(ECHO) "<UL class=htmlindex><LI> \
+               <A HREF=manl/$(BASEMAIN).l><B class=applname>$(BASEMAIN)</B> \
+               Unix man entry (source)</A></UL>" \
+-              > $(DOCDIR)/$(BASEMAIN)_man.htmlindex
+-	-@chmod $(DATAMODE) $(DOCDIR)/$(BASEMAIN)_man.htmlindex
++              > $(DESTDIR)$(DOCDIR)/$(BASEMAIN)_man.htmlindex
++	-@chmod $(DATAMODE) $(DESTDIR)$(DOCDIR)/$(BASEMAIN)_man.htmlindex
+ 	@$(ECHO) "*** --------------------------------------------------------"
+-	@$(ECHO) "*** Remember to add $(DOCDIR) to MANPATH!"
++	@$(ECHO) "*** Remember to add $(DESTDIR)$(DOCDIR) to MANPATH!"
+ 	@$(ECHO) "*** --------------------------------------------------------"
+ 
+ uninstallmanl: 
+ 	@$(ECHO) "*** --------------------------------------------------------"
+ 	@$(ECHO) "*** Uninstalling .l file for $(BASEMAIN) ..."
+ 	@$(ECHO) "*** --------------------------------------------------------"
+-	-@rm -f $(DOCDIR)/manl/$(BASEMAIN).l
+-	-@rm -f $(DOCDIR)/$(BASEMAIN)_man.htmlindex
+-	-@rmdir $(DOCDIR)/manl
++	-@rm -f $(DESTDIR)$(DOCDIR)/manl/$(BASEMAIN).l
++	-@rm -f $(DESTDIR)$(DOCDIR)/$(BASEMAIN)_man.htmlindex
++	-@rmdir $(DESTDIR)$(DOCDIR)/manl
+ 
+ #----------------------------------------------------------------------------
+ # Installation of index entries
+@@ -773,48 +773,48 @@
+ 	@$(ECHO) "*** --------------------------------------------------------"
+ 	@$(ECHO) "*** Installing html index for $(BASEMAIN) ..."
+ 	@$(ECHO) "*** --------------------------------------------------------"
+-	-@mkdir -p $(DOCDIR)
+-	-@chmod $(EXECMODE) $(DOCDIR)
+-	-@cp $(BASEMAIN).htmlbullet $(DOCDIR)
+-	-@chmod $(DATAMODE) $(DOCDIR)/$(BASEMAIN).htmlbullet
+-	-@cp $(BASEMAIN).htmlindex $(DOCDIR) 
+-	-@chmod $(DATAMODE) $(DOCDIR)/$(BASEMAIN).htmlindex
++	-@mkdir -p $(DESTDIR)$(DOCDIR)
++	-@chmod $(EXECMODE) $(DESTDIR)$(DOCDIR)
++	-@cp $(BASEMAIN).htmlbullet $(DESTDIR)$(DOCDIR)
++	-@chmod $(DATAMODE) $(DESTDIR)$(DOCDIR)/$(BASEMAIN).htmlbullet
++	-@cp $(BASEMAIN).htmlindex $(DESTDIR)$(DOCDIR) 
++	-@chmod $(DATAMODE) $(DESTDIR)$(DOCDIR)/$(BASEMAIN).htmlindex
+ # Not really needed?
+-	-@chmod $(DATAMODE) $(DOCDIR)/*.html
++	-@chmod $(DATAMODE) $(DESTDIR)$(DOCDIR)/*.html
+ ifdef HTMLSTYLE
+-	-@cp lpdoc.css $(DOCDIR)
+-	-@chmod $(DATAMODE) $(DOCDIR)/lpdoc.css
++	-@cp lpdoc.css $(DESTDIR)$(DOCDIR)
++	-@chmod $(DATAMODE) $(DESTDIR)$(DOCDIR)/lpdoc.css
+ else
+ endif
+ ifdef EXTRAFILES
+-	-@cp $(EXTRAFILES) $(DOCDIR)
+-	-@cd $(DOCDIR) && chmod $(DATAMODE) $(EXTRAFILES)
++	-@cp $(EXTRAFILES) $(DESTDIR)$(DOCDIR)
++	-@cd $(DESTDIR)$(DOCDIR) && chmod $(DATAMODE) $(EXTRAFILES)
+ else
+ endif
+ 	$(MAKE) updatehtmlindex
+ # In this case the figures must be in $(DOCDIR)!
+-	-@cp auto*.jpg $(DOCDIR)
+-	-@chmod $(DATAMODE) $(DOCDIR)/auto*.jpg
++	-@cp auto*.jpg $(DESTDIR)$(DOCDIR)
++	-@chmod $(DATAMODE) $(DESTDIR)$(DOCDIR)/auto*.jpg
+ 	$(MAKE) installreadme
+ 
+ updatehtmlindex: 
+-	-@cat Indexhead_$(BASEMAIN).html > $(DOCDIR)/index.html
+-	-@cd $(DOCDIR) && cat *.htmlbullet >> index.html
+-	-@cd $(DOCDIR) && cat *.htmlindex >> index.html
++	-@cat Indexhead_$(BASEMAIN).html > $(DESTDIR)$(DOCDIR)/index.html
++	-@cd $(DESTDIR)$(DOCDIR) && cat *.htmlbullet >> index.html
++	-@cd $(DESTDIR)$(DOCDIR) && cat *.htmlindex >> index.html
+ 	-@$(ECHO) "<p><hr><p><b>Last modified on:</b> `date`.<p>" \
+-                      >> $(DOCDIR)/index.html
+-	-@cat Indextail_$(BASEMAIN).html >> $(DOCDIR)/index.html
+-	-@chmod $(DATAMODE) $(DOCDIR)/index.html
++                      >> $(DESTDIR)$(DOCDIR)/index.html
++	-@cat Indextail_$(BASEMAIN).html >> $(DESTDIR)$(DOCDIR)/index.html
++	-@chmod $(DATAMODE) $(DESTDIR)$(DOCDIR)/index.html
+ 
+ uninstallhtmlindex: 
+ 	@$(ECHO) "*** --------------------------------------------------------"
+ 	@$(ECHO) "*** Uninstalling html index for $(BASEMAIN) ..."
+ 	@$(ECHO) "*** --------------------------------------------------------"
+-	-@rm -f $(DOCDIR)/$(BASEMAIN).htmlbullet
+-	-@rm -f $(DOCDIR)/$(BASEMAIN).htmlindex
+-	-@rm -f $(DOCDIR)/auto*.jpg
++	-@rm -f $(DESTDIR)$(DOCDIR)/$(BASEMAIN).htmlbullet
++	-@rm -f $(DESTDIR)$(DOCDIR)/$(BASEMAIN).htmlindex
++	-@rm -f $(DESTDIR)$(DOCDIR)/auto*.jpg
+ ifdef EXTRAFILES
+-	-@cd $(DOCDIR) && rm -f $(EXTRAFILES)
++	-@cd $(DESTDIR)$(DOCDIR) && rm -f $(EXTRAFILES)
+ else
+ endif
+ 	$(MAKE) updatehtmlindex
+@@ -822,38 +822,38 @@
+ 
+ installreadme:
+ 	@$(ECHO) "*** WARNING: Files automatically generated -- do not edit!" \
+-	      > $(DOCDIR)/README
+-	-@chmod $(DATAMODE) $(DOCDIR)/README
++	      > $(DESTDIR)$(DOCDIR)/README
++	-@chmod $(DATAMODE) $(DESTDIR)$(DOCDIR)/README
+ 
+ uninstallreadmeanddir:
+-	-@rm -f $(DOCDIR)/README
+-	-@rmdir $(DOCDIR)
++	-@rm -f $(DESTDIR)$(DOCDIR)/README
++	-@rmdir $(DESTDIR)$(DOCDIR)
+ 
+ # $(BASEMAIN).infoindex $(INFODIRHEADFILE) $(INFODIRTAILFILE)
+ installinfoindex: 
+ 	@$(ECHO) "*** --------------------------------------------------------"
+ 	@$(ECHO) "*** Installing info index for $(BASEMAIN) ..."
+ 	@$(ECHO) "*** --------------------------------------------------------"
+-	-@mkdir -p $(DOCDIR)
+-	-@chmod $(EXECMODE) $(DOCDIR)
+-	-@cp $(BASEMAIN).infoindex $(DOCDIR) 
+-	-@chmod $(DATAMODE) $(DOCDIR)/$(BASEMAIN).infoindex
++	-@mkdir -p $(DESTDIR)$(DOCDIR)
++	-@chmod $(EXECMODE) $(DESTDIR)$(DOCDIR)
++	-@cp $(BASEMAIN).infoindex $(DESTDIR)$(DOCDIR) 
++	-@chmod $(DATAMODE) $(DESTDIR)$(DOCDIR)/$(BASEMAIN).infoindex
+ # Not really needed?
+-	-@chmod $(DATAMODE) $(DOCDIR)/*.info
+-#	-@cp $(INFODIRHEADFILE) $(INFODIRTAILFILE) $(DOCDIR) 
++	-@chmod $(DATAMODE) $(DESTDIR)$(DOCDIR)/*.info
++#	-@cp $(INFODIRHEADFILE) $(INFODIRTAILFILE) $(DESTDIR)$(DOCDIR) 
+ 	$(MAKE) updateinfoindex
+ 	$(MAKE) installreadme
+ 
+ updateinfoindex:
+-	-@cat Indexhead_$(BASEMAIN).info $(DOCDIR)/*.infoindex \
+-	     Indextail_$(BASEMAIN).info > $(DOCDIR)/dir
+-	-@chmod $(DATAMODE) $(DOCDIR)/dir
++	-@cat Indexhead_$(BASEMAIN).info $(DESTDIR)$(DOCDIR)/*.infoindex \
++	     Indextail_$(BASEMAIN).info > $(DESTDIR)$(DOCDIR)/dir
++	-@chmod $(DATAMODE) $(DESTDIR)$(DOCDIR)/dir
+ 
+ uninstallinfoindex: 
+ 	@$(ECHO) "*** --------------------------------------------------------"
+ 	@$(ECHO) "*** Uninstalling info index for $(BASEMAIN) ..."
+ 	@$(ECHO) "*** --------------------------------------------------------"
+-	-@rm -f $(DOCDIR)/$(BASEMAIN).infoindex
++	-@rm -f $(DESTDIR)$(DOCDIR)/$(BASEMAIN).infoindex
+ 	$(MAKE) updateinfoindex
+ 	$(MAKE) uninstallreadmeanddir
+ 

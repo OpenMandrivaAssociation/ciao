@@ -1,0 +1,121 @@
+--- ciao-1.10p8/etc/DOTprofile.skel	2004-12-06 05:32:15.000000000 +0100
++++ ciao-1.10p8.n/etc/DOTprofile.skel	2009-02-24 15:57:49.000000000 +0100
+@@ -3,20 +3,6 @@
+ # This file is meant for inclusion in user initialization scripts
+ # --------------------------------------------------------------------
+ #
+-# Setting paths for the executables:
+-#
+-CIAOBINDIR=binary_directory
+-
+-if [ ${PATH:-0} = 0 ]
+-then
+-    PATH=${CIAOBINDIR} ; export PATH
+-else
+-    case ${PATH} in
+-	${CIAOBINDIR}:* | *:${CIAOBINDIR} | *:${CIAOBINDIR}:* ) ;;
+-	* )
+-	    PATH=${CIAOBINDIR}:${PATH} ;;
+-    esac
+-fi
+ 
+ #
+ # Setting engine related paths: 
+@@ -47,30 +33,6 @@
+ # command line), the unix man command, etc.
+ # 
+ CIAODOCDIR=documentation_directory ; export CIAODOCDIR
+-# Set MANPATH (checking that we do not add it twice)
+-# The colon at the end is needed so that default paths are found!
+-if [ ${MANPATH:-0} = 0 ]
+-then
+-    MANPATH=${CIAODOCDIR}: ; export MANPATH
+-else
+-    case ${MANPATH} in
+-	${CIAODOCDIR}:* | *:${CIAODOCDIR} | *:${CIAODOCDIR}:* ) ;;
+-	* )
+-	    MANPATH=${CIAODOCDIR}:${MANPATH} ;;
+-    esac
+-fi
+-
+-# Set INFOPATH (checking that we do not add it twice)
+-if [ ${INFOPATH:-0} = 0 ]
+-then
+-    INFOPATH=/usr/info:/usr/share/info:/usr/local/info:${CIAODOCDIR} ; export INFOPATH
+-else
+-    case ${INFOPATH} in
+-	${CIAODOCDIR}:* | *:${CIAODOCDIR} | *:${CIAODOCDIR}:* ) ;;
+-	* )
+-	    INFOPATH=${INFOPATH}:${CIAODOCDIR} ;;
+-    esac
+-fi
+ # 
+ # --------------------------------------------------------------------
+ # 
+--- ciao-1.10p8/etc/DOTcshrc.skel	2004-12-06 05:32:15.000000000 +0100
++++ ciao-1.10p8.n/etc/DOTcshrc.skel	2009-02-24 15:58:22.000000000 +0100
+@@ -3,24 +3,6 @@
+ # This file is meant for inclusion in user initialization scripts
+ # --------------------------------------------------------------------
+ #
+-# Setting paths for the executables:
+-#
+-setenv CIAOBINDIR binary_directory
+-if ( ${?PATH} == 0 ) then
+-    setenv PATH ${CIAOBINDIR}
+-else
+-        switch (${PATH})
+-	case ${CIAOBINDIR}:*:      # it is first one
+-	     breaksw
+-	case *:${CIAOBINDIR}:      # it is last one
+-	     breaksw
+-	case *:${CIAOBINDIR}:*:    # it is in the middle
+-	     breaksw
+-	default:
+-	     setenv PATH ${CIAOBINDIR}:${PATH}
+-	     breaksw
+-	endsw
+-endif
+ #
+ # Setting engine related paths: 
+ # 
+@@ -47,39 +29,6 @@
+ # command line), the unix man command, etc.
+ # 
+ setenv CIAODOCDIR documentation_directory
+-# Set MANPATH (checking that we do not add it twice)
+-# The colon at the end is needed so that default paths are found!
+-if ( ${?MANPATH} == 0 ) then
+-        setenv MANPATH ${CIAODOCDIR}:
+-else
+-	switch (${MANPATH})
+-	case ${CIAODOCDIR}:*:      # it is first one
+-	     breaksw
+-	case *:${CIAODOCDIR}:      # it is last one
+-	     breaksw
+-	case *:${CIAODOCDIR}:*:    # it is in the middle
+-	     breaksw
+-	default:
+-	     setenv MANPATH ${CIAODOCDIR}:${MANPATH}
+-	     breaksw
+-	endsw
+-endif
+-# Set INFOPATH (checking that we do not add it twice)
+-if ( ${?INFOPATH} == 0 ) then
+-        setenv INFOPATH /usr/info:/usr/share/info:/usr/local/info:${CIAODOCDIR}
+-else
+-	switch (${INFOPATH})
+-	case ${CIAODOCDIR}:*:      # it is first one
+-	     breaksw
+-	case *:${CIAODOCDIR}:      # it is last one
+-	     breaksw
+-	case *:${CIAODOCDIR}:*:    # it is in the middle
+-	     breaksw
+-	default:
+-	     setenv INFOPATH ${INFOPATH}:${CIAODOCDIR}
+-	     breaksw
+-	endsw
+-endif
+ # 
+ # --------------------------------------------------------------------
+ # 
