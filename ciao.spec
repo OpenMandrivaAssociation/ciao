@@ -117,3 +117,23 @@ rm -Rf %{buildroot}
 %{_includedir}/ciao_prolog.h
 %{_infodir}/ciao.info*
 %{_mandir}/man1/ciao.1*
+
+
+%changelog
+* Thu Dec 09 2010 Oden Eriksson <oeriksson@mandriva.com> 1.10p8-4mdv2011.0
++ Revision: 617037
+- the mass rebuild of 2010.0 packages
+
+* Thu Sep 10 2009 Thierry Vignaud <tv@mandriva.org> 1.10p8-3mdv2010.0
++ Revision: 437031
+- rebuild
+
+* Mon Mar 16 2009 Nicolas Vigier <nvigier@mandriva.com> 1.10p8-2mdv2009.1
++ Revision: 355716
+- install ciaoc
+
+* Tue Feb 24 2009 Nicolas Vigier <nvigier@mandriva.com> 1.10p8-1mdv2009.1
++ Revision: 344509
+- import ciao
+
+
