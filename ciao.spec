@@ -1,21 +1,23 @@
-%define shortversion 1.10
-%define ciaolibdir %{_libdir}/ciao-%{shortversion}
+%define _enable_debug_packages %{nil}
+%define debug_package %{nil}
 
+%define shortversion 1.10
+
+Summary:	Prolog development environment
 Name:		ciao
 Version:	1.10p8
-Release:	%mkrel 4
-Source:		http://www.clip.dia.fi.upm.es/~clip/Software/Ciao/ciao-%{version}.tar.gz
-URL:		http://www.ciaohome.org/
-Summary:	Prolog development environment
+Release:	5
+Url:		http://www.ciaohome.org/
+Source0:	http://www.clip.dia.fi.upm.es/~clip/Software/Ciao/ciao-%{version}.tar.gz
 License:	GPLv2+
 Group:		Development/Other
 Patch0:		ciao-makefile-destdir.patch
 Patch1:		ciao-dotprofile.patch
 BuildRequires:	emacs
-BuildRoot:	%{_tmppath}/%{name}-%{version}-root
+
 %description
 Ciao is next generation multi-paradigm programming environment with a
-unique set of features: 
+unique set of features:
 
 * Ciao offers a complete Prolog system, supporting ISO-Prolog, but its
   novel modular design allows both restricting and extending the language.
@@ -71,16 +73,29 @@ unique set of features:
   entries for indices of manuals (info, WWW, ...), and maintains WWW
   distribution sites.
 
+%files
+%doc local_doc/*
+%config(noreplace) %{_sysconfdir}/profile.d/ciao.sh
+%config(noreplace) %{_sysconfdir}/profile.d/ciao.csh
+%{_libdir}/ciao-%{shortversion}/*
+%{_libdir}/*.elc
+%{_libdir}/*.el
+%{_bindir}/*
+%{_includedir}/ciao_prolog.h
+%{_infodir}/ciao.info*
+%{_mandir}/man1/ciao.1*
+
+#----------------------------------------------------------------------------
+
 %prep
 %setup -q
 %patch0 -p1
 %patch1 -p1
 
 %build
-make CIAOROOT=%_prefix LIBDIR=%{_libdir} SRC=`pwd` DOCROOT=%{_defaultdocdir}/%{name}-%{version} EXECMODE=755 DATAMODE=644
+make CIAOROOT=%{_prefix} LIBDIR=%{_libdir} SRC=`pwd` DOCROOT=%{_defaultdocdir}/%{name}-%{version} EXECMODE=755 DATAMODE=644
 
 %install
-rm -Rf %{buildroot}
 make DESTDIR=%{buildroot} CIAOROOT=%{_prefix} LIBDIR=%{_libdir} SRC=`pwd` \
      DOCROOT=%{_defaultdocdir}/%{name}-%{version} EXECMODE=755 DATAMODE=644 install
 
@@ -89,51 +104,16 @@ make DESTDIR=%{buildroot} CIAOROOT=%{_prefix} LIBDIR=%{_libdir} SRC=`pwd`/.. \
      DOCROOT=%{_defaultdocdir}/%{name}-%{version} EXECMODE=755 DATAMODE=644 install
 popd
 
-%{__mkdir_p} %{buildroot}%{_mandir}/man1 %{buildroot}%{_infodir}
+mkdir -p %{buildroot}%{_mandir}/man1 %{buildroot}%{_infodir}
 
 mv %{buildroot}%{_defaultdocdir}/%{name}-%{version}/ciao.info %{buildroot}%{_infodir}
 mv %{buildroot}%{_defaultdocdir}/%{name}-%{version}/manl/ciao.l %{buildroot}%{_mandir}/man1/ciao.1
 
 mv %{buildroot}%{_defaultdocdir}/%{name}-%{version} local_doc
 
-%{__mkdir_p} %{buildroot}%{_sysconfdir}/profile.d
-mv %{buildroot}%{ciaolibdir}/DOTprofile %{buildroot}%{_sysconfdir}/profile.d/ciao.sh
-mv %{buildroot}%{ciaolibdir}/DOTcshrc %{buildroot}%{_sysconfdir}/profile.d/ciao.csh
+mkdir -p %{buildroot}%{_sysconfdir}/profile.d
+mv %{buildroot}%{_libdir}/ciao-%{shortversion}/DOTprofile %{buildroot}%{_sysconfdir}/profile.d/ciao.sh
+mv %{buildroot}%{_libdir}/ciao-%{shortversion}/DOTcshrc %{buildroot}%{_sysconfdir}/profile.d/ciao.csh
 rm %{buildroot}%{_libdir}/DOTprofile %{buildroot}%{_libdir}/DOTcshrc
 rm %{buildroot}%{_libdir}/NewUser
-
-%clean
-rm -Rf %{buildroot}
-
-%files
-%defattr(-,root,root)
-%doc local_doc/*
-%config(noreplace) %{_sysconfdir}/profile.d/ciao.sh
-%config(noreplace) %{_sysconfdir}/profile.d/ciao.csh
-%{ciaolibdir}/*
-%{_libdir}/*.elc
-%{_libdir}/*.el
-%{_bindir}/*
-%{_includedir}/ciao_prolog.h
-%{_infodir}/ciao.info*
-%{_mandir}/man1/ciao.1*
-
-
-%changelog
-* Thu Dec 09 2010 Oden Eriksson <oeriksson@mandriva.com> 1.10p8-4mdv2011.0
-+ Revision: 617037
-- the mass rebuild of 2010.0 packages
-
-* Thu Sep 10 2009 Thierry Vignaud <tv@mandriva.org> 1.10p8-3mdv2010.0
-+ Revision: 437031
-- rebuild
-
-* Mon Mar 16 2009 Nicolas Vigier <nvigier@mandriva.com> 1.10p8-2mdv2009.1
-+ Revision: 355716
-- install ciaoc
-
-* Tue Feb 24 2009 Nicolas Vigier <nvigier@mandriva.com> 1.10p8-1mdv2009.1
-+ Revision: 344509
-- import ciao
-
 
