@@ -6,7 +6,7 @@
 Summary:	Prolog development environment
 Name:		ciao
 Version:	1.10p8
-Release:	5
+Release:	6
 Url:		http://www.ciaohome.org/
 Source0:	http://www.clip.dia.fi.upm.es/~clip/Software/Ciao/ciao-%{version}.tar.gz
 License:	GPLv2+
